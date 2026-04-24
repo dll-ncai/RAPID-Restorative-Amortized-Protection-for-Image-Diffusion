@@ -1,0 +1,54 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data
+data/
+celeba/
+*.zip
+celeba/
+celeba-hq/
+restormer_latentlock/
+
+# Weights (large files)
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+
+# External repositories
+Restormer/
+
+# Notebook (analysis only)
+rapid_paper_version.ipynb
+
+# Old main.py (from notebook)
+main.py
+
+# Results
+results/
+outputs/
+logs/
+
+# Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+.mypy_cache/
+.ruff_cache/

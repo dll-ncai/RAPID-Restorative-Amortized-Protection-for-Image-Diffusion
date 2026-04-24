@@ -1,0 +1,60 @@
+[project]
+name = "rapid-eval"
+version = "0.1.0"
+description = "RAPID: Real-time Adversarial Protection for Image Diffusion"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "diffusers>=0.25.0",
+    "transformers>=4.35.0",
+    "accelerate>=0.25.0",
+    "lpips>=0.1.4",
+    "timm>=0.9.0",
+    "transformers",
+    "pyyaml>=6.0",
+    "opencv-python>=4.8.0",
+    "scikit-image>=0.21.0",
+    "matplotlib>=3.8.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "pillow>=10.0.0",
+    "ftfy>=6.1.0",
+    "regex>=2023.0.0",
+    "tqdm>=4.66.0",
+    "mediapipe>=0.10.0",
+    "einops>=0.7.0",
+    "huggingface_hub>=0.19.0",
+    "scipy>=1.11.0",
+    "seaborn>=0.12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/README.md",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 100
