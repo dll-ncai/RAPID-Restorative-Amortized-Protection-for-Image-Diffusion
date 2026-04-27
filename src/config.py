@@ -42,7 +42,7 @@ class ImageConfig:
 class DataConfig:
     """Dataset configuration."""
     num_eval_images: int = 100
-    start_index: int = 5000
+    start_index: int = 4000
     url: str = "https://www.dropbox.com/s/d1kjpkqklf0uw77/celeba.zip?dl=1"
 
 
@@ -172,7 +172,7 @@ STEP_SIZE = 0.02
 IMAGE_SIZE = 512
 BATCH_SIZE = 1
 NUM_EVAL_IMAGES = 100
-START_INDEX = 5000
+START_INDEX = 4000
 PROMPTS = DEFAULT_PROMPTS
 EDIT_STEPS = 50
 GUIDANCE_SCALE = 7.5
