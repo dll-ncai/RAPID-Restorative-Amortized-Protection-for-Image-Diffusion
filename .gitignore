@@ -17,8 +17,8 @@ env/
 *.swo
 
 # Data
-data/
-celeba/
+/data/
+/celeba/
 *.zip
 celeba/
 celeba-hq/
