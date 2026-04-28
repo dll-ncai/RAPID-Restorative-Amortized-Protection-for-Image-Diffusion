@@ -1,12 +1,15 @@
 """CLIP-based image-text similarity metric."""
 
+import sys
 from typing import Optional
 import torch
 from PIL import Image
 
+# Use system clip (the git version)
+sys.path.insert(0, '/home/remote/.local/lib/python3.12/site-packages')
 import clip
 
-from ..utils.transforms import tensor_to_pil
+from src.utils.transforms import tensor_to_pil
 
 
 class CLIPScore:
@@ -18,20 +21,20 @@ class CLIPScore:
     
     def __init__(
         self,
-        model_name: str = 'ViT-L/14',
+        model_path: str = "/storage/2/models/clip/ViT-L-14.pt",
         device: Optional[torch.device] = None,
     ):
         """Initialize CLIP model.
         
         Args:
-            model_name: CLIP model variant
+            model_path: Path to CLIP model weights
             device: Compute device
         """
         if device is None:
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.device = device
         
-        self.model, self.preprocess = clip.load(model_name, device)
+        self.model, self.preprocess = clip.load(model_path, device)
         self.model.eval()
     
     @torch.no_grad()

@@ -1,6 +1,8 @@
 """EditShield attack implementation."""
 
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 from .base_attack import BaseAttack, get_editshield_emb
 

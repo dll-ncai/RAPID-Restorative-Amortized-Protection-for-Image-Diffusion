@@ -108,7 +108,7 @@ def parse_args() -> EvalConfig:
         help="Number of test images to evaluate",
     )
     parser.add_argument(
-        "--start-idx", type=int, default=5000,
+        "--start-idx", type=int, default=4000,
         help="Starting index in dataset (after training split)",
     )
     parser.add_argument(

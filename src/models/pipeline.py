@@ -16,7 +16,7 @@ class ImageEditor:
     
     def __init__(
         self,
-        model_id: str = "instructionpix2pix",
+        model_path: str = "/storage/2/models/diffusion/instruct-pix2pix",
         device: str = "cuda",
         edit_steps: int = 50,
         guidance_scale: float = 7.5,
@@ -25,7 +25,7 @@ class ImageEditor:
         """Initialize the image editor.
         
         Args:
-            model_id: HuggingFace model identifier
+            model_path: Local path to InstructPix2Pix model
             device: Device to load models on
             edit_steps: Number of denoising steps
             guidance_scale: Text guidance scale
@@ -35,10 +35,11 @@ class ImageEditor:
         self.edit_steps = edit_steps
         self.guidance_scale = guidance_scale
         self.image_guidance_scale = image_guidance_scale
+        self.model_path = model_path
         
-        # Load pipeline
+        # Load pipeline from local path
         pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
-            model_id,
+            model_path,
             torch_dtype=torch.float16 if device == "cuda" else torch.float32,
         )
         
@@ -48,7 +49,11 @@ class ImageEditor:
         )
         
         self.pipeline = pipeline.to(device)
-        self.pipeline.eval()
+        
+        # Set components to eval mode
+        self.pipeline.unet.eval()
+        self.pipeline.vae.eval()
+        self.pipeline.text_encoder.eval()
         
         # Enable memory optimizations
         if device == "cuda":

@@ -16,6 +16,10 @@ def compute_facelock_score(
     fr_model: nn.Module,
 ) -> torch.Tensor:
     """Compute cosine similarity between aligned faces."""
+    # Move models to same device as input
+    aligner = aligner.to(input1.device)
+    fr_model = fr_model.to(input1.device)
+    
     target_dtype = next(aligner.parameters()).dtype
     
     input1 = input1.to(dtype=target_dtype)

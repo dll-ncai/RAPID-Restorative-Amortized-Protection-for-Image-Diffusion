@@ -45,8 +45,10 @@ class RAPID(nn.Module):
         
         if device is None:
             device = next(self.parameters()).device
-            
-        checkpoint = torch.load(weights_path, map_location=device, weights_only=False)
+        
+        # Always load to CPU first, then move to target device
+        # This avoids CUDA deserialization issues with old drivers
+        checkpoint = torch.load(weights_path, map_location='cpu', weights_only=False)
         
         if 'params' in checkpoint:
             state_dict = checkpoint['params']
@@ -61,6 +63,9 @@ class RAPID(nn.Module):
         
         self.model.load_state_dict(new_state_dict)
         self.model.eval()
+        
+        # Move to target device
+        self.model.to(device)
         
         return self
     

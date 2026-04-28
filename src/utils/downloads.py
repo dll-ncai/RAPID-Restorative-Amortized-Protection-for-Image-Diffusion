@@ -55,35 +55,27 @@ def load_model_from_local_path(model_path: str, token: Optional[str] = None):
 
 
 def download_face_models(
-    save_dir: str = "models/face",
-    force_download: bool = False,
-    token: Optional[str] = None,
+    aligner_path: str = "/storage/2/models/facelock/aligner/aligner",
+    fr_model_path: str = "/storage/2/.cache/huggingface/fr_model",
 ) -> dict:
-    """Download FaceLock required models (aligner and FR model).
+    """Load FaceLock models from local paths.
     
     Args:
-        save_dir: Directory to save models
-        force_download: Force re-download even if exists
-        token: HuggingFace access token
+        aligner_path: Path to aligner model
+        fr_model_path: Path to FR model
         
     Returns:
         Dict with 'aligner' and 'fr_model' keys
     """
-    # MobyFace repository (FaceLock models)
-    repo_id = "MobyFace/MobyFace"
+    # Load aligner model
+    aligner = load_model_from_local_path(aligner_path)
     
-    if force_download and os.path.exists(save_dir):
-        shutil.rmtree(save_dir)
+    # Load FR model
+    fr_model = load_model_from_local_path(fr_model_path)
     
-    if not os.path.exists(os.path.join(save_dir, 'files.txt')):
-        download_model_files(repo_id, save_dir, token)
-    
-    model = load_model_from_local_path(save_dir, token)
-    
-    # Model components are accessed via .aligner and .net attributes
     return {
-        'aligner': model.aligner,
-        'fr_model': model,
+        'aligner': aligner.model,  # Use .model, not .aligner
+        'fr_model': fr_model,
     }
 
 

@@ -85,10 +85,17 @@ class Evaluator:
         if self.config.verbose:
             print("  ✓ Image editor loaded")
         
+        # Add DDPM scheduler for EditShield
+        from diffusers import DDPMScheduler
+        ddpm_scheduler = DDPMScheduler.from_pretrained(
+            "/storage/2/models/diffusion/instruct-pix2pix",
+            subfolder="scheduler"
+        )
+        
         # Resources dict for attacks
         self.resources = {
             'vae': self.editor.pipeline.vae,
-            'ddpm_scheduler': self.editor.pipeline.scheduler,
+            'ddpm_scheduler': ddpm_scheduler,
             'lpips_fn': PerceptualMetrics(device=self.device).lpips_fn,
         }
         
@@ -117,8 +124,8 @@ class Evaluator:
         
         try:
             self._face_models = download_face_models(
-                save_dir="models/face",
-                token=os.environ.get("HF_TOKEN"),
+                aligner_path="/storage/2/models/facelock/aligner/aligner",
+                fr_model_path="/storage/2/.cache/huggingface/fr_model",
             )
             self.resources['aligner'] = self._face_models['aligner']
             self.resources['fr_model'] = self._face_models['fr_model']
