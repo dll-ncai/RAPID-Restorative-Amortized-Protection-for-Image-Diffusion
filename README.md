@@ -1,47 +1,171 @@
-# RAPID Evaluation Pipeline
+# RAPID: Restorative Amortized Protection for Image Diffusion
 
-Real-time Adversarial Protection for Image Diffusion (RAPID) evaluation framework.
+A comprehensive evaluation framework for testing adversarial protection methods against image editing attacks on text-to-image diffusion models.
 
-## Setup
+## Overview
+
+RAPID evaluates protection methods against prompt-based image editing attacks using Stable Diffusion InstructPix2Pix. It measures how well different defenses preserve images after adversarial attacks.
+
+### Supported Methods
+
+| Method | Description |
+|--------|-------------|
+| `clean` | No protection (baseline) |
+| `rapid` | RAPID restoration-based defense |
+| `photoguard` | CLIP-based purification defense |
+| `facelock` | Face-specific protection |
+| `editshield` | Encoder-based purification |
+
+## Installation
 
 ```bash
 # Install dependencies
 uv sync
 
-# Clone Restormer repository
+# Clone Restormer (required for RAPID)
 git clone https://github.com/swz30/Restormer.git Restormer
 
-# Download pretrained weights
-# (Add instructions here)
+# Download pretrained weights (see Model Setup below)
 ```
 
-## Data Preparation
+## Model Setup
 
-Download the dataset from HuggingFace:
+Create `config.yaml` based on the provided template. Models are auto-downloaded from HuggingFace if not found locally:
+
+```yaml
+models:
+  sd_i2p_path: "diffusers/instruct-pix2pix-78"  # Model ID or local path
+  clip_path: "openai/clip-vit-large-patch14"
+  rapid_weights_path: "restormer.pth"
+```
+
+### Manual Download
+
+- **Restormer weights**: Place `restormer.pth` in project root
+- **CelebA-HQ dataset**: Download from [Dropbox](https://www.dropbox.com/s/d1kjpkqklf0uw77/celeba.zip?dl=1) and extract to `celeba-hq/`
+
+## Dataset Preparation
+
+The evaluation uses CelebA-HQ images (indices 4000+ for test split). Prepare the dataset:
 
 ```bash
-wget "https://huggingface.co/datasets/mattymchen/celeba-hq/resolve/main/data/train-00000-of-00006-bae07ad6d4d89a77.parquet" -O celeba-hq/dataset.parquet
+# Option 1: Manual download
+wget "https://www.dropbox.com/s/d1kjpkqklf0uw77/celeba.zip?dl=1" -O celeba.zip
+unzip celeba.zip -d celeba-hq
+
+# Option 2: HuggingFace (auto-downloads on first use)
+# Set repo_id in config.yaml
 ```
 
 ## Usage
 
+### Basic Evaluation
+
 ```bash
-python main.py --num-images 200 --methods all --output-dir results/
+# Evaluate all methods on 100 images
+python main.py --num-images 100 --methods all --output-dir results/
+
+# Evaluate specific method
+python main.py --methods rapid --num-images 50
 ```
 
-This command evaluates all attack methods (clean, photoguard, facelock, editshield, rapid) on 200 images starting from index 4000 in the CelebA-HQ dataset.
+### Command-Line Options
 
-## Results
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `--config` | Config file path | `config.yaml` |
+| `--num-images` | Number of images to evaluate | 100 |
+| `--start-idx` | Starting image index | 4000 |
+| `--methods` | Methods to evaluate | `all` |
+| `--output-dir` | Results directory | `results/` |
+| `--device` | Device (`cuda` or `cpu`) | `cuda` |
+| `--save-images` | Save visualization samples | `false` |
+| `--epsilon` | Attack epsilon (L-inf) | 0.047 |
+| `--iterations` | Attack iterations | 40 |
+
+### Configuration File
+
+All options can be set in `config.yaml`:
+
+```yaml
+general:
+  seed: 42
+  device: "cuda"
+
+dataset:
+  path: "celeba-hq"
+  num_eval_images: 100
+
+methods:
+  - "all"
+
+attack:
+  epsilon: 0.047
+  num_iter: 40
+
+diffusion:
+  edit_steps: 50
+  guidance_scale: 7.5
+```
+
+### Environment Variables
+
+Override paths via environment variables:
+
+```bash
+export RAPID_SD_PATH="/path/to/stable-diffusion"
+export RAPID_CLIP_PATH="/path/to/clip"
+export RAPID_DATASET_PATH="/path/to/dataset"
+export RAPID_OUTPUT_DIR="my-results"
+```
+
+## Output
+
+Results are saved to the output directory with metrics:
 
 ```
-============================================================
-EVALUATION SUMMARY
-============================================================
-             LPIPS    SSIM      PSNR  CLIP_Score  inference_time
-method                                                                  
-clean       0.0000  1.0000  100.0000      0.2151          0.0000
-editshield  0.5299  0.4825   15.8522      0.2277          6.3787
-facelock    0.5496  0.4799   15.7744      0.2292         10.2833
-photoguard  0.5589  0.4882   13.1951      0.2289          2.3800
-rapid       0.4777  0.6279   19.1762      0.2142          0.1021
+results/
+├── metrics.csv          # Numerical results
+└── samples/             # Visualization (if --save-images)
+```
+
+### Metrics
+
+- **LPIPS**: Perceptual similarity (lower = more similar to original)
+- **SSIM**: Structural similarity (higher = better)
+- **PSNR**: Peak signal-to-noise ratio (higher = better)
+- **CLIP Score**: Semantic similarity to prompt
+
+## Quick Start Example
+
+```bash
+# Full evaluation with all methods
+python main.py \
+  --num-images 200 \
+  --methods all \
+  --output-dir results/ \
+  --save-images
+```
+
+## Requirements
+
+- Python 3.10+
+- PyTorch 2.0+
+- CUDA-capable GPU (recommended)
+- 16GB+ RAM
+
+## Project Structure
+
+```
+Rapid/
+├── main.py              # Entry point
+├── config.yaml          # Configuration template
+├── src/
+│   ├── config.py        # CLI and config parsing
+│   ├── evaluate.py      # Evaluation loop
+│   ├── data/            # Dataset handling
+│   ├── models/          # Protection methods
+│   ├── metrics/         # Evaluation metrics
+│   └── utils/           # Utilities
+└── Restormer/           # Cloned Restormer repo
 ```
