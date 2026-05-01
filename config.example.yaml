@@ -9,27 +9,26 @@ general:
   verbose: true
   save_images: false
 
-# Model Paths - use local paths or HuggingFace model IDs for auto-download
+# Model Paths - uses HuggingFace model IDs for auto-download by default
+# Override with local paths if you have models cached locally
 models:
-  # Stable Diffusion InstructPix2Pix
-  # Local path or HuggingFace model ID (e.g., "diffusers/instruct-pix2pix-78")
-  sd_i2p_path: "/storage/2/models/diffusion/instruct-pix2pix"
+  # Stable Diffusion InstructPix2Pix (auto-downloads if not found locally)
+  sd_i2p_path: "diffusers/instruct-pix2pix-78"
   sd_i2p_repo_id: "diffusers/instruct-pix2pix-78"
 
-  # CLIP ViT-L/14
-  # Local path or HuggingFace model ID for auto-download
-  clip_path: "/storage/2/models/clip/ViT-L-14.pt"
+  # CLIP ViT-L/14 (auto-downloads if not found locally)
+  clip_path: "openai/clip-vit-large-patch14"
   clip_repo_id: "openai/clip-vit-large-patch14"
 
-  # FaceLock models
-  facelock_aligner_path: "/storage/2/models/facelock/aligner/aligner"
-  facelock_fr_path: "/storage/2/.cache/huggingface/fr_model"
+  # FaceLock models (optional - only needed for facelock method)
+  facelock_aligner_path: "Klingener/FaceLock-Aligner"
+  facelock_fr_path: "Klingener/FaceLock-FR"
   facelock_aligner_repo_id: "Klingener/FaceLock-Aligner"
   facelock_fr_repo_id: "Klingener/FaceLock-FR"
 
-  # RAPID/Restormer weights
+  # RAPID/Restormer weights - REQUIRED
+  # Download from: https://github.com/swz30/Restormer/releases
   rapid_weights_path: "restormer.pth"
-  restormer_repo_path: "Restormer"
 
 # Dataset Configuration
 dataset:
@@ -37,12 +36,8 @@ dataset:
   file: "dataset.parquet"
   # HuggingFace dataset ID for auto-download (optional)
   # repo_id: "your-org/celeba-hq"
-  # Number of images to evaluate
   num_eval_images: 100
-  # Starting index in dataset (after training split)
   start_index: 4000
-  # Original dataset download URL (for reference)
-  url: "https://www.dropbox.com/s/d1kjpkqklf0uw77/celeba.zip?dl=1"
 
 # Output Configuration
 output:
