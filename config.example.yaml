@@ -1,0 +1,83 @@
+# RAPID Evaluation Pipeline Configuration
+# Copy this file to config.yaml and modify paths as needed
+# CLI args override config file, which overrides env vars, which overrides defaults
+
+# General Configuration
+general:
+  seed: 42
+  device: "cuda"
+  verbose: true
+  save_images: false
+
+# Model Paths - use local paths or HuggingFace model IDs for auto-download
+models:
+  # Stable Diffusion InstructPix2Pix
+  # Local path or HuggingFace model ID (e.g., "diffusers/instruct-pix2pix-78")
+  sd_i2p_path: "/storage/2/models/diffusion/instruct-pix2pix"
+  sd_i2p_repo_id: "diffusers/instruct-pix2pix-78"
+
+  # CLIP ViT-L/14
+  # Local path or HuggingFace model ID for auto-download
+  clip_path: "/storage/2/models/clip/ViT-L-14.pt"
+  clip_repo_id: "openai/clip-vit-large-patch14"
+
+  # FaceLock models
+  facelock_aligner_path: "/storage/2/models/facelock/aligner/aligner"
+  facelock_fr_path: "/storage/2/.cache/huggingface/fr_model"
+  facelock_aligner_repo_id: "Klingener/FaceLock-Aligner"
+  facelock_fr_repo_id: "Klingener/FaceLock-FR"
+
+  # RAPID/Restormer weights
+  rapid_weights_path: "restormer.pth"
+  restormer_repo_path: "Restormer"
+
+# Dataset Configuration
+dataset:
+  path: "celeba-hq"
+  file: "dataset.parquet"
+  # HuggingFace dataset ID for auto-download (optional)
+  # repo_id: "your-org/celeba-hq"
+  # Number of images to evaluate
+  num_eval_images: 100
+  # Starting index in dataset (after training split)
+  start_index: 4000
+  # Original dataset download URL (for reference)
+  url: "https://www.dropbox.com/s/d1kjpkqklf0uw77/celeba.zip?dl=1"
+
+# Output Configuration
+output:
+  dir: "results"
+
+# Methods to evaluate: clean, photoguard, facelock, editshield, rapid, or all
+methods:
+  - "all"
+
+# Prompts for image editing evaluation
+prompts:
+  - "Turn the person's hair pink"
+  - "Let the person turn bald"
+  - "Let the person have a tattoo"
+  - "Let the person wear purple makeup"
+  - "Let the person grow a moustache"
+  - "Turn the person into a zombie"
+  - "Change the skin color to Avatar blue"
+  - "Add elf-like ears"
+  - "Let the person wear sunglasses"
+  - "Let the person wear a police suit"
+
+# Attack Configuration
+attack:
+  epsilon: 0.047  # 12/255
+  num_iter: 40
+  step_size: 0.02
+
+# Image Configuration
+image:
+  size: 512
+  batch_size: 1
+
+# Diffusion Configuration
+diffusion:
+  edit_steps: 50
+  guidance_scale: 7.5
+  image_guidance_scale: 1.5

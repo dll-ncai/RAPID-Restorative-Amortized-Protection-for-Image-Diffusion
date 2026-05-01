@@ -62,20 +62,26 @@ class Evaluator:
         
         # RAPID model
         self.rapid_model = RAPID()
-        if os.path.exists(self.config.rapid_weights_path):
-            self.rapid_model.load_weights(self.config.rapid_weights_path, self.device)
+        rapid_weights = self.config.models.rapid_weights_path
+        if os.path.exists(rapid_weights):
+            self.rapid_model.load_weights(rapid_weights, self.device)
             self.rapid_model.to(self.device)
             self.rapid_model.eval()
             if self.config.verbose:
                 print("  ✓ RAPID model loaded")
         else:
-            print(f"  ⚠ Warning: RAPID weights not found at {self.config.rapid_weights_path}")
+            print(f"  ⚠ Warning: RAPID weights not found at {rapid_weights}")
         
         # Image editor (SD I2P)
         if self.config.verbose:
             print("  Loading Stable Diffusion InstructPix2Pix...")
         
+        sd_path = self.config.models.sd_i2p_path
+        sd_repo_id = self.config.models.sd_i2p_repo_id
+        
         self.editor = ImageEditor(
+            model_path=sd_path,
+            repo_id=sd_repo_id,
             device=str(self.device),
             edit_steps=self.config.diffusion.edit_steps,
             guidance_scale=self.config.diffusion.guidance_scale,
@@ -87,10 +93,10 @@ class Evaluator:
         
         # Add DDPM scheduler for EditShield
         from diffusers import DDPMScheduler
-        ddpm_scheduler = DDPMScheduler.from_pretrained(
-            "/storage/2/models/diffusion/instruct-pix2pix",
-            subfolder="scheduler"
-        )
+        if os.path.exists(sd_path):
+            ddpm_scheduler = DDPMScheduler.from_pretrained(sd_path, subfolder="scheduler")
+        else:
+            ddpm_scheduler = DDPMScheduler.from_pretrained(sd_repo_id, subfolder="scheduler")
         
         # Resources dict for attacks
         self.resources = {
@@ -106,7 +112,9 @@ class Evaluator:
     def _init_metrics(self):
         """Initialize metric calculators."""
         self.perceptual_metrics = PerceptualMetrics(device=self.device)
-        self.clip_score = CLIPScore(device=self.device)
+        clip_path = self.config.models.clip_path
+        clip_repo_id = self.config.models.clip_repo_id
+        self.clip_score = CLIPScore(model_path=clip_path, repo_id=clip_repo_id, device=self.device)
         
         if self.config.verbose:
             print("  ✓ Metrics initialized")
@@ -122,10 +130,17 @@ class Evaluator:
         if self.config.verbose:
             print("  Loading FaceLock models...")
         
+        aligner_path = self.config.models.facelock_aligner_path
+        fr_model_path = self.config.models.facelock_fr_path
+        aligner_repo_id = self.config.models.facelock_aligner_repo_id
+        fr_repo_id = self.config.models.facelock_fr_repo_id
+        
         try:
             self._face_models = download_face_models(
-                aligner_path="/storage/2/models/facelock/aligner/aligner",
-                fr_model_path="/storage/2/.cache/huggingface/fr_model",
+                aligner_path=aligner_path,
+                fr_model_path=fr_model_path,
+                aligner_repo_id=aligner_repo_id,
+                fr_repo_id=fr_repo_id,
             )
             self.resources['aligner'] = self._face_models['aligner']
             self.resources['fr_model'] = self._face_models['fr_model']
@@ -287,7 +302,7 @@ def main(config: EvalConfig):
         config: Evaluation configuration
     """
     # Create output directory
-    os.makedirs(config.output_dir, exist_ok=True)
+    os.makedirs(config.output.dir, exist_ok=True)
     
     # Determine methods
     if "all" in config.methods:
@@ -305,7 +320,9 @@ def main(config: EvalConfig):
     
     # Create data loader
     data_loader = create_eval_loader(
-        data_dir="data",
+        data_dir=config.dataset.path,
+        file_name=config.dataset.file,
+        repo_id=config.dataset.repo_id,
         num_images=config.data.num_eval_images,
         start_idx=config.data.start_index,
         batch_size=config.image.batch_size,
@@ -322,7 +339,7 @@ def main(config: EvalConfig):
         )
         
         # Save results
-        results_path = os.path.join(config.output_dir, "results.csv")
+        results_path = os.path.join(config.output.dir, "results.csv")
         results_df.to_csv(results_path, index=False)
         
         # Print summary

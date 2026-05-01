@@ -1,5 +1,6 @@
 """Stable Diffusion InstructPix2Pix pipeline wrapper."""
 
+import os
 from typing import Optional
 from PIL import Image
 
@@ -12,11 +13,13 @@ class ImageEditor:
     """Wrapper for Stable Diffusion InstructPix2Pix.
     
     Provides simple interface for text-guided image editing.
+    Supports both local paths and auto-download from HuggingFace.
     """
     
     def __init__(
         self,
         model_path: str = "/storage/2/models/diffusion/instruct-pix2pix",
+        repo_id: str = "diffusers/instruct-pix2pix-78",
         device: str = "cuda",
         edit_steps: int = 50,
         guidance_scale: float = 7.5,
@@ -25,7 +28,8 @@ class ImageEditor:
         """Initialize the image editor.
         
         Args:
-            model_path: Local path to InstructPix2Pix model
+            model_path: Local path to InstructPix2Pix model OR HuggingFace repo ID
+            repo_id: HuggingFace model ID for auto-download if local path doesn't exist
             device: Device to load models on
             edit_steps: Number of denoising steps
             guidance_scale: Text guidance scale
@@ -36,12 +40,20 @@ class ImageEditor:
         self.guidance_scale = guidance_scale
         self.image_guidance_scale = image_guidance_scale
         self.model_path = model_path
+        self.repo_id = repo_id
         
-        # Load pipeline from local path
-        pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
-            model_path,
-            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-        )
+        # Determine source: local path or auto-download
+        if os.path.exists(model_path):
+            pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+                model_path,
+                torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+            )
+        else:
+            # Auto-download from HuggingFace
+            pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+                repo_id,
+                torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+            )
         
         # Use Euler Ancestral scheduler for faster sampling
         pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(

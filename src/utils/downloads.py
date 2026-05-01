@@ -57,21 +57,33 @@ def load_model_from_local_path(model_path: str, token: Optional[str] = None):
 def download_face_models(
     aligner_path: str = "/storage/2/models/facelock/aligner/aligner",
     fr_model_path: str = "/storage/2/.cache/huggingface/fr_model",
+    aligner_repo_id: str = "Klingener/FaceLock-Aligner",
+    fr_repo_id: str = "Klingener/FaceLock-FR",
 ) -> dict:
-    """Load FaceLock models from local paths.
+    """Load FaceLock models from local paths or auto-download from HuggingFace.
     
     Args:
-        aligner_path: Path to aligner model
-        fr_model_path: Path to FR model
+        aligner_path: Local path to aligner model
+        fr_model_path: Local path to FR model
+        aligner_repo_id: HuggingFace repo ID for aligner (for auto-download)
+        fr_repo_id: HuggingFace repo ID for FR model (for auto-download)
         
     Returns:
         Dict with 'aligner' and 'fr_model' keys
     """
-    # Load aligner model
-    aligner = load_model_from_local_path(aligner_path)
+    # Load aligner model - try local first, then auto-download
+    if os.path.exists(aligner_path):
+        aligner = load_model_from_local_path(aligner_path)
+    else:
+        # Auto-download from HuggingFace
+        aligner = AutoModel.from_pretrained(aligner_repo_id, trust_remote_code=True)
     
-    # Load FR model
-    fr_model = load_model_from_local_path(fr_model_path)
+    # Load FR model - try local first, then auto-download
+    if os.path.exists(fr_model_path):
+        fr_model = load_model_from_local_path(fr_model_path)
+    else:
+        # Auto-download from HuggingFace
+        fr_model = AutoModel.from_pretrained(fr_repo_id, trust_remote_code=True)
     
     return {
         'aligner': aligner.model,  # Use .model, not .aligner
