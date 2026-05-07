@@ -27,13 +27,10 @@ Download pretrained weights from the Restormer release:
 
 ### 2. Dataset
 
-Download CelebA-HQ dataset:
-
-```bash
-# Option 1: Download from Dropbox
-wget "https://www.dropbox.com/s/d1kjpkqklf0uw77/celeba.zip?dl=1" -O celeba.zip
-unzip celeba.zip -d celeba-hq
-```
+#### Source
+- **HuggingFace Dataset**: [mattymchen/celeba-hq](https://huggingface.co/datasets/mattymchen/celeba-hq)
+- **File Used**: `train-00000-of-00006-bae07ad6d4d89a77.parquet`
+- **Download URL**: `https://huggingface.co/datasets/mattymchen/celeba-hq/resolve/main/data/train-00000-of-00006-bae07ad6d4d89a77.parquet`
 
 The evaluation uses images starting from index 4000 (test split).
 
@@ -43,10 +40,10 @@ The evaluation uses images starting from index 4000 (test split).
 
 ```bash
 # Evaluate all methods on 100 images
-python main.py --num-images 100 --methods all
+python src/evaluate.py --num-images 100 --methods all
 
 # Evaluate specific method
-python main.py --methods rapid --num-images 50
+python src/evaluate.py --methods rapid --num-images 50
 ```
 
 ### Configuration
