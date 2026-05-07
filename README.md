@@ -21,7 +21,7 @@ cp config.example.yaml config.yaml
 Download pretrained weights from the Restormer release:
 
 ```bash
-# Download from https://github.com/swz30/Restormer/releases
+# Download from releases
 # Place restormer.pth in the project root
 ```
 
